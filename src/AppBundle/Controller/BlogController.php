@@ -15,6 +15,7 @@ use AppBundle\Entity\Comment;
 use AppBundle\Entity\Post;
 use AppBundle\Events;
 use AppBundle\Form\CommentType;
+use AppBundle\Repository\PostRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -30,17 +31,27 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Controller used to manage blog contents in the public part of the site.
  *
- * @Route("/blog")
+ * @Route("/blog", service="AppBundle\Controller\BlogController")
  *
  * @author Ryan Weaver <weaverryan@gmail.com>
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  */
 class BlogController extends Controller
 {
+    /** @var PostRepository */
+    private $postRepository;
+
+    /**
+     * @param PostRepository $postRepository
+     */
+    public function __construct(PostRepository $postRepository)
+    {
+        $this->postRepository = $postRepository;
+    }
+
     /**
      * @Route("/", defaults={"page": "1", "_format"="html"}, name="blog_index")
      * @Route("/rss.xml", defaults={"page": "1", "_format"="xml"}, name="blog_rss")
-     * @Route("/page/{page}", defaults={"_format"="html"}, requirements={"page": "[1-9]\d*"}, name="blog_index_paginated")
      * @Method("GET")
      * @Cache(smaxage="10")
      *
@@ -48,10 +59,10 @@ class BlogController extends Controller
      * Content-Type header for the response.
      * See https://symfony.com/doc/current/quick_tour/the_controller.html#using-formats
      */
-    public function indexAction($page, $_format)
+    public function indexAction(Request $request, $_format)
     {
-        $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository(Post::class)->findLatest($page);
+        $page = $request->query->get('page', 1);
+        $posts = $this->postRepository->findLatest($page);
 
         // Every template name also has two extensions that specify the format and
         // engine for that template.

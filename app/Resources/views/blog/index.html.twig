@@ -24,11 +24,9 @@
         <div class="well">{{ 'post.no_posts_found'|trans }}</div>
     {% endfor %}
 
-    {% if posts.haveToPaginate %}
-        <div class="navigation text-center">
-            {{ pagerfanta(posts, 'twitter_bootstrap3_translated', {routeName: 'blog_index_paginated'}) }}
-        </div>
-    {% endif %}
+    <div class="navigation text-center">
+        {{ knp_pagination_render(posts) }}
+    </div>
 {% endblock %}
 
 {% block sidebar %}

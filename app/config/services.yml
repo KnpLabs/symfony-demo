@@ -9,6 +9,14 @@ services:
         # if you need to do this, you can override this setting on individual services
         public: false
 
+    AppBundle\Repository\PostRepository:
+        factory: ['@doctrine.orm.default_entity_manager', getRepository]
+        arguments: [AppBundle\Entity\Post]
+        tags: ['knp_paginator.injectable']
+
+    AppBundle\Controller\BlogController:
+        autowire: true
+
     # makes classes in src/AppBundle available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     AppBundle\:

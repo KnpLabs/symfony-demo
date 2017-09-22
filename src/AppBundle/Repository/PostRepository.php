@@ -13,9 +13,9 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\Post;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
-use Pagerfanta\Pagerfanta;
+use Knp\Bundle\PaginatorBundle\Definition\PaginatorAwareInterface;
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\Paginator;
 
 /**
  * This custom Doctrine repository contains some methods which are useful when
@@ -27,12 +27,23 @@ use Pagerfanta\Pagerfanta;
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
-class PostRepository extends EntityRepository
+class PostRepository extends EntityRepository implements PaginatorAwareInterface
 {
+    /** @var Paginator */
+    private $paginator;
+
+    /**
+     * @param Paginator $paginator
+     */
+    public function setPaginator(Paginator $paginator)
+    {
+        $this->paginator = $paginator;
+    }
+
     /**
      * @param int $page
      *
-     * @return Pagerfanta
+     * @return PaginationInterface
      */
     public function findLatest($page = 1)
     {
@@ -48,16 +59,7 @@ class PostRepository extends EntityRepository
             ->setParameter('now', new \DateTime())
         ;
 
-        return $this->createPaginator($query, $page);
-    }
-
-    private function createPaginator(Query $query, $page)
-    {
-        $paginator = new Pagerfanta(new DoctrineORMAdapter($query));
-        $paginator->setMaxPerPage(Post::NUM_ITEMS);
-        $paginator->setCurrentPage($page);
-
-        return $paginator;
+        return $this->paginator->paginate($query, $page, 10);
     }
 
     /**
