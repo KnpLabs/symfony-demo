@@ -89,4 +89,4 @@ knp_paginator:
     default_options:
         page_name: page
     template:
-        pagination: 'KnpPaginatorBundle:Pagination:twitter_bootstrap_v3_pagination.html.twig'
+        pagination: '@KnpPaginator/Pagination/twitter_bootstrap_v3_pagination.html.twig'
